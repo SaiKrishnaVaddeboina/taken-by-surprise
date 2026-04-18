@@ -1,0 +1,52 @@
+state_name,state_abbr,state_fips,population_2024
+Alabama,AL,01,3201827
+Alaska,AK,02,496127
+Arizona,AZ,04,6079887
+Arkansas,AR,05,2082294
+California,CA,06,32976857
+Colorado,CO,08,4457491
+Connecticut,CT,09,1439192
+Delaware,DE,10,298517
+District of Columbia,DC,11,702250
+Florida,FL,12,11681597
+Georgia,GA,13,5052889
+Hawaii,HI,15,344967
+Idaho,ID,16,1429318
+Illinois,IL,17,11096576
+Indiana,IN,18,4672119
+Iowa,IA,19,2616653
+Kansas,KS,20,2473316
+Kentucky,KY,21,2570255
+Louisiana,LA,22,2110314
+Maine,ME,23,394865
+Maryland,MD,24,1565446
+Massachusetts,MA,25,3854162
+Michigan,MI,26,5098906
+Minnesota,MN,27,4837837
+Mississippi,MS,28,1487233
+Missouri,MO,29,4158142
+Montana,MT,30,621144
+Nebraska,NE,31,1558152
+Nevada,NV,32,1894855
+New Hampshire,NH,33,442485
+New Jersey,NJ,34,4537431
+New Mexico,NM,35,1440149
+New York,NY,36,12694930
+North Carolina,NC,37,6414049
+North Dakota,ND,38,622751
+Ohio,OH,39,7709375
+Oklahoma,OK,40,3166256
+Oregon,OR,41,3030527
+Pennsylvania,PA,42,5654253
+Rhode Island,RI,44,579689
+South Carolina,SC,45,2035222
+South Dakota,SD,46,668662
+Tennessee,TN,47,4357703
+Texas,TX,48,22551709
+Utah,UT,49,3286949
+Vermont,VT,50,154693
+Virginia,VA,51,3136606
+Washington,WA,53,5235382
+West Virginia,WV,54,601282
+Wisconsin,WI,55,4379688
+Wyoming,WY,56,403303

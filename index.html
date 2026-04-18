@@ -1,0 +1,1177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Taken by Surprise — U.S. Cargo Theft 2024 · CS 573</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Interactive Bayesian Surprise Map of the FBI 2024 Cargo Theft dataset. CS 573 Final Project, Worcester Polytechnic Institute.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/1.0.2/css/bulma.min.css">
+<style>
+  :root {
+    --ink: #141821;
+    --ink-soft: #39404d;
+    --muted: #6b7280;
+    --rule: #e6e8ec;
+    --bg: #fbfbfd;
+    --card: #ffffff;
+    --accent: #3b2e7e;
+    --accent-soft: #f1efff;
+    --accent-2: #e94560;
+    --good: #188a6a;
+    --warn: #c57500;
+    --bad: #b4213b;
+    --shadow: 0 1px 2px rgba(16,24,40,.04), 0 8px 24px -12px rgba(16,24,40,.12);
+  }
+  html[data-theme="dark"] {
+    --ink: #e7eaf1;
+    --ink-soft: #aeb4c2;
+    --muted: #8a91a1;
+    --rule: #2a2f3b;
+    --bg: #0f1117;
+    --card: #181c25;
+    --accent: #b7a8ff;
+    --accent-soft: #22203a;
+    --accent-2: #ff6d87;
+    --shadow: 0 1px 2px rgba(0,0,0,.24), 0 14px 28px -12px rgba(0,0,0,.45);
+  }
+  html, body { background: var(--bg); color: var(--ink); }
+  body { font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+  .nav-bar { position: sticky; top: 0; z-index: 40; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: saturate(1.2) blur(10px); border-bottom: 1px solid var(--rule); }
+  .nav-bar .nav-inner { display: flex; align-items: center; gap: 1.2rem; max-width: 1280px; margin: 0 auto; padding: 0.75rem 1.25rem; }
+  .brand { font-family: "Source Serif 4", Georgia, serif; font-weight: 700; font-size: 1.1rem; letter-spacing: -0.01em; color: var(--ink); }
+  .brand .dot { color: var(--accent-2); }
+  .nav-tabs { display: flex; gap: 0.15rem; margin-left: auto; flex-wrap: wrap; }
+  .nav-tab { border: 0; background: transparent; color: var(--muted); font: inherit; font-weight: 500; padding: 0.45rem 0.85rem; border-radius: 999px; cursor: pointer; transition: background 120ms ease, color 120ms ease; }
+  .nav-tab:hover { color: var(--ink); background: color-mix(in srgb, var(--accent-soft) 60%, transparent); }
+  .nav-tab.active { color: var(--accent); background: var(--accent-soft); }
+  .nav-icon-btn { border: 1px solid var(--rule); background: var(--card); color: var(--ink-soft); width: 36px; height: 36px; border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: transform 120ms ease; }
+  .nav-icon-btn:hover { transform: translateY(-1px); }
+
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 1.25rem; }
+  .hero { padding: 2.6rem 1.25rem 1.2rem; }
+  .eyebrow { font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); }
+  .title { font-family: "Source Serif 4", Georgia, serif; font-weight: 700; font-size: clamp(1.8rem, 2.8vw, 2.8rem); letter-spacing: -0.015em; line-height: 1.08; color: var(--ink); margin: 0.3rem 0 0.5rem; }
+  .subtitle { font-size: 1.05rem; color: var(--ink-soft); max-width: 72ch; line-height: 1.55; }
+  .byline { color: var(--muted); margin-top: 0.9rem; }
+  .tag-custom { display: inline-block; background: var(--accent-soft); color: var(--accent); font-weight: 600; padding: 0.15rem 0.55rem; border-radius: 4px; font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; margin-right: 0.45rem; }
+
+  .kpi-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; margin-top: 1.4rem; }
+  .kpi { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 0.85rem 1rem; box-shadow: var(--shadow); }
+  .kpi-num { font-family: "Source Serif 4", Georgia, serif; font-weight: 600; font-size: 1.55rem; color: var(--accent); line-height: 1.1; }
+  .kpi-lbl { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.11em; margin-top: 0.15rem; }
+  .kpi-sub { font-size: 0.78rem; color: var(--ink-soft); margin-top: 0.15rem; }
+
+  .card { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; box-shadow: var(--shadow); }
+  .card-pad { padding: 1rem 1.1rem; }
+
+  .chip-row { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; }
+  .chip { display: inline-flex; align-items: center; gap: 0.3rem; border: 1px solid var(--rule); background: var(--card); color: var(--ink-soft); padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.82rem; cursor: pointer; user-select: none; transition: transform 80ms ease, background 120ms ease; }
+  .chip:hover { transform: translateY(-1px); }
+  .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .chip .chip-dot { width: 8px; height: 8px; border-radius: 999px; background: currentColor; opacity: 0.7; }
+  .chip-secondary { background: transparent; }
+
+  .panel-header { display: flex; align-items: baseline; justify-content: space-between; gap: 0.8rem; margin-bottom: 0.6rem; }
+  .h-eye { font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .h-sm { font-family: "Source Serif 4", Georgia, serif; font-weight: 600; font-size: 1.05rem; color: var(--ink); }
+
+  .grid { display: grid; gap: 1rem; }
+  .grid-explorer { grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr); }
+  .grid-compare { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 960px) {
+    .grid-explorer, .grid-compare { grid-template-columns: 1fr; }
+  }
+
+  .svg-wrap { position: relative; }
+  .svg-wrap svg { width: 100%; height: auto; display: block; }
+  .map-svg { background: transparent; }
+  .state-path { stroke: var(--card); stroke-width: 0.6; cursor: default; transition: opacity 160ms ease, stroke-width 120ms ease; }
+  .state-path.dim { opacity: 0.14; }
+  .state-path.selected { stroke: var(--ink); stroke-width: 1.8; }
+  .state-label { font-size: 10px; fill: var(--muted); pointer-events: none; text-anchor: middle; font-weight: 600; letter-spacing: 0.02em; }
+
+  .legend-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; padding: 0.6rem 0.2rem 0.2rem; }
+  .legend-row .legend-label { min-width: 170px; font-size: 0.84rem; color: var(--ink-soft); font-weight: 500; }
+  .legend-cells { display: flex; gap: 2px; }
+  .legend-cell { width: 28px; height: 14px; border-radius: 2px; border: 1px solid rgba(0,0,0,0.06); cursor: pointer; transition: transform 90ms ease; }
+  .legend-cell:hover { transform: translateY(-2px); }
+  .legend-minmax { font-size: 0.78rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  .tooltip { position: fixed; pointer-events: none; background: rgba(17, 20, 28, 0.97); color: #f0f2f8; padding: 0.7rem 0.85rem; border-radius: 8px; font-size: 0.82rem; line-height: 1.4; max-width: 280px; opacity: 0; transform: translate(-50%, -120%); transition: opacity 90ms ease; z-index: 60; box-shadow: 0 10px 30px -10px rgba(0,0,0,.35); }
+  .tooltip::after { content: ""; position: absolute; left: 50%; bottom: -5px; width: 10px; height: 10px; background: rgba(17,20,28,0.97); transform: translateX(-50%) rotate(45deg); }
+  .tooltip .t-name { font-weight: 700; letter-spacing: -0.01em; font-size: 0.94rem; margin-bottom: 0.3rem; }
+  .tooltip .t-sub { color: #a6acba; font-size: 0.75rem; margin-bottom: 0.3rem; }
+  .tooltip .t-row { display: flex; justify-content: space-between; gap: 1.3rem; font-variant-numeric: tabular-nums; }
+  .tooltip .t-row .k { color: #a6acba; }
+  .tooltip .t-row .v { color: #fff; font-weight: 500; }
+  .tooltip .t-row.emph .v { color: #ffd479; font-weight: 600; }
+  .tooltip .t-bar { height: 3px; background: rgba(255,255,255,0.14); border-radius: 2px; margin-top: 0.35rem; overflow: hidden; }
+  .tooltip .t-bar > div { height: 100%; background: #ffd479; }
+
+  .rank-row { display: flex; justify-content: space-between; align-items: center; gap: 0.4rem; font-size: 0.88rem; padding: 0.28rem 0; border-bottom: 1px dashed var(--rule); cursor: pointer; transition: background 120ms ease; border-radius: 4px; padding-left: 0.3rem; padding-right: 0.3rem; }
+  .rank-row:last-child { border-bottom: 0; }
+  .rank-row:hover { background: color-mix(in srgb, var(--accent-soft) 60%, transparent); }
+  .rank-row .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; vertical-align: middle; }
+  .rank-row .name { color: var(--ink); font-weight: 500; }
+  .rank-row .val { color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+
+  .annot-line { stroke: var(--ink-soft); stroke-width: 1; fill: none; stroke-dasharray: 2 3; }
+  .annot-text { font-size: 11px; fill: var(--ink); font-weight: 500; }
+  .annot-halo { font-size: 11px; stroke: var(--bg); stroke-width: 3.2; fill: none; paint-order: stroke; }
+
+  .metric-pill { display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 500; padding: 0.2rem 0.55rem; border-radius: 6px; background: var(--accent-soft); color: var(--accent); font-size: 0.78rem; }
+
+  .story-card { border-left: 3px solid var(--accent); padding: 0.8rem 1rem; background: color-mix(in srgb, var(--accent-soft) 50%, transparent); border-radius: 0 8px 8px 0; }
+  .highlight { background: linear-gradient(180deg, transparent 62%, color-mix(in srgb, var(--accent-2) 30%, transparent) 62%); padding: 0 2px; }
+
+  .math { background: color-mix(in srgb, var(--accent-soft) 60%, transparent); border-left: 3px solid var(--accent); padding: 0.75rem 1rem; font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 0.82rem; color: var(--ink); overflow-x: auto; border-radius: 0 8px 8px 0; }
+
+  .data-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+  .data-table th, .data-table td { padding: 0.5rem 0.65rem; text-align: right; border-bottom: 1px solid var(--rule); font-variant-numeric: tabular-nums; }
+  .data-table th { font-weight: 600; font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); cursor: pointer; user-select: none; position: sticky; top: 0; background: var(--card); }
+  .data-table th:first-child, .data-table td:first-child { text-align: left; }
+  .data-table tbody tr:hover { background: color-mix(in srgb, var(--accent-soft) 45%, transparent); }
+  .data-table tbody tr.selected { background: color-mix(in srgb, var(--accent-soft) 75%, transparent); }
+  .data-table .sort-arrow { font-size: 0.7rem; color: var(--accent); margin-left: 0.25rem; }
+
+  .search-input { width: 100%; border: 1px solid var(--rule); background: var(--card); color: var(--ink); padding: 0.5rem 0.8rem; border-radius: 8px; font: inherit; }
+  .search-input:focus { outline: 2px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 1px; border-color: var(--accent); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; animation: fade .25s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(3px);} to { opacity: 1; transform: none; } }
+
+  .funnel-band-99 { fill: color-mix(in srgb, var(--accent) 10%, transparent); }
+  .funnel-band-95 { fill: color-mix(in srgb, var(--accent) 18%, transparent); }
+  .funnel-center { stroke: var(--accent); stroke-dasharray: 4 3; stroke-width: 1; }
+  .funnel-dot { stroke: var(--card); stroke-width: 1.2; cursor: pointer; transition: r 120ms ease; }
+  .funnel-dot:hover { r: 8; }
+  .axis line, .axis path { stroke: var(--rule); }
+  .axis text { fill: var(--muted); font-size: 11px; }
+  .grid-line { stroke: var(--rule); stroke-dasharray: 2 3; opacity: 0.6; }
+
+  .bar-cell { fill: var(--accent); }
+  .bar-cell.negative { fill: #4a7dd6; }
+  .bar-cell.faint { opacity: 0.35; }
+  .bar-label { font-size: 10px; fill: var(--ink-soft); font-weight: 500; }
+  .bar-value { font-size: 10px; fill: var(--ink); font-variant-numeric: tabular-nums; }
+
+  .step-dot { display: inline-block; width: 22px; height: 22px; border-radius: 999px; background: var(--accent); color: #fff; text-align: center; font-weight: 700; font-size: 0.78rem; line-height: 22px; margin-right: 0.4rem; }
+
+  .footer { color: var(--muted); font-size: 0.82rem; padding: 2.2rem 1.25rem 2.8rem; text-align: center; }
+  .footer a { color: var(--accent); }
+
+  .scroll-shadow { box-shadow: inset 0 -6px 6px -6px rgba(0,0,0,0.08); }
+  .scroll-y { max-height: 420px; overflow-y: auto; }
+
+  @media print { .nav-bar, .nav-icon-btn, .chip-row { display: none !important; } }
+</style>
+</head>
+<body>
+
+<div id="tooltip" class="tooltip" role="tooltip" aria-hidden="true"></div>
+
+<nav class="nav-bar" aria-label="Main navigation">
+  <div class="nav-inner">
+    <span class="brand">Taken by&nbsp;Surprise<span class="dot">.</span></span>
+    <div class="nav-tabs" id="nav-tabs" role="tablist">
+      <button class="nav-tab active" data-tab="overview" role="tab">Overview</button>
+      <button class="nav-tab" data-tab="explore" role="tab">Explorer</button>
+      <button class="nav-tab" data-tab="funnel" role="tab">Funnel Plot</button>
+      <button class="nav-tab" data-tab="compare" role="tab">Compare</button>
+      <button class="nav-tab" data-tab="table" role="tab">Data Table</button>
+      <button class="nav-tab" data-tab="method" role="tab">Methodology</button>
+    </div>
+    <button id="theme-btn" class="nav-icon-btn" title="Toggle theme" aria-label="Toggle theme">🌓</button>
+  </div>
+</nav>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero wrap">
+  <p class="eyebrow">CS 573 · Worcester Polytechnic Institute · Spring 2026</p>
+  <h1 class="title">Taken by Surprise: Mapping U.S. Cargo Theft in 2024</h1>
+  <p class="subtitle">
+    A Bayesian-Surprise &amp; choropleth companion to the FBI Crime Data Explorer&rsquo;s 2024 Cargo Theft release.
+    We re-ask the question the raw map obscures — <em>which states are unusual <strong>given</strong> their population</em> —
+    following Correll &amp; Heer (2017) and Ndlovu, Shrestha &amp; Harrison (2023).
+  </p>
+  <p class="byline">
+    <span class="tag-custom">Team</span>
+    Matthew McAlarney · Hongchao Hu · Duncan Farquharson · Sai&nbsp;Krishna&nbsp;Vaddeboina
+  </p>
+  <div class="kpi-strip" id="kpi-strip"><!-- filled by JS --></div>
+</section>
+
+<!-- ===================== OVERVIEW TAB ===================== -->
+<main id="tab-overview" class="tab-content active wrap">
+
+  <div class="grid" style="grid-template-columns: minmax(0,1.4fr) minmax(0,1fr);">
+    <section class="card card-pad">
+      <div class="panel-header">
+        <div>
+          <div class="h-eye">At a glance</div>
+          <div class="h-sm">The story in three views</div>
+        </div>
+        <div class="chip-row" id="overview-view-chips">
+          <button class="chip active" data-view="value">Raw value</button>
+          <button class="chip" data-view="rate">Rate / 100k</button>
+          <button class="chip" data-view="surprise">Surprise</button>
+        </div>
+      </div>
+      <div class="svg-wrap" id="overview-map-wrap">
+        <svg id="overview-map" viewBox="0 0 960 560" class="map-svg" role="img" aria-label="Choropleth map"></svg>
+      </div>
+      <div class="legend-row" id="overview-legend"></div>
+    </section>
+
+    <aside class="card card-pad" style="display: flex; flex-direction: column; gap: 0.9rem;">
+      <div>
+        <div class="h-eye">Why we built this</div>
+        <div class="h-sm">A raw map rewards population, not risk.</div>
+        <p style="color: var(--ink-soft); margin-top: 0.5rem; line-height: 1.55;">
+          Kentucky alone explains <strong class="highlight">31% of stolen value</strong> in the 2024 release — the
+          kind of signal that dominates every other state on an undifferentiated
+          dollar choropleth. Switch to the rate map and a second story lands:
+          <strong class="highlight">Maryland is 14× the national incident rate</strong>. The Bayesian surprise map
+          reconciles both by asking whether each state&rsquo;s rate is plausible under a shared sampling model.
+        </p>
+      </div>
+
+      <div class="story-card">
+        <div class="h-eye" style="color:var(--accent)">Guided tour</div>
+        <ol style="margin-top:0.4rem; margin-left: 1rem; font-size: 0.92rem; line-height: 1.7;">
+          <li><span class="step-dot">1</span>Kentucky&rsquo;s raw-dollar dominance</li>
+          <li><span class="step-dot">2</span>Maryland&rsquo;s rate dwarfs the nation</li>
+          <li><span class="step-dot">3</span>Nevada, Georgia, New Mexico emerge only under <em>Surprise</em></li>
+          <li><span class="step-dot">4</span>California, New York, Minnesota are surprisingly <em>low</em></li>
+        </ol>
+        <button id="btn-tour" class="chip active" style="margin-top: 0.75rem;">▶ Play tour</button>
+      </div>
+
+      <div>
+        <div class="h-eye">Quick findings</div>
+        <div id="quick-findings" style="margin-top:0.4rem; display:grid; gap:0.4rem; font-size: 0.9rem;">
+          <div class="rank-row"><span class="name">Highest rate</span><span class="val" id="qf-rate">—</span></div>
+          <div class="rank-row"><span class="name">Highest surprise (rate)</span><span class="val" id="qf-surp">—</span></div>
+          <div class="rank-row"><span class="name">Highest value</span><span class="val" id="qf-value">—</span></div>
+          <div class="rank-row"><span class="name">Best recovery %</span><span class="val" id="qf-rec">—</span></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="grid" style="grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 1rem;">
+    <article class="card card-pad">
+      <div class="h-eye">Finding 01</div>
+      <div class="h-sm">Kentucky is a value outlier</div>
+      <p style="color: var(--ink-soft); margin-top: 0.4rem;">$150.2M in stolen value from just 70 incidents — 31% of the national total. It dominates any raw-dollar choropleth.</p>
+    </article>
+    <article class="card card-pad">
+      <div class="h-eye">Finding 02</div>
+      <div class="h-sm">Maryland&rsquo;s rate dwarfs the nation</div>
+      <p style="color: var(--ink-soft); margin-top: 0.4rem;">76.9 incidents / 100k residents — roughly 14× the 7.7 / 100k national baseline and the highest z-score in the dataset.</p>
+    </article>
+    <article class="card card-pad">
+      <div class="h-eye">Finding 03</div>
+      <div class="h-sm">Why Surprise over raw count</div>
+      <p style="color: var(--ink-soft); margin-top: 0.4rem;">Raw-count choropleths repeat the population map. Bayesian weighting down-ranks the population signal and lets regional patterns surface.</p>
+    </article>
+  </div>
+</main>
+
+<!-- ===================== EXPLORER TAB ===================== -->
+<main id="tab-explore" class="tab-content wrap">
+  <div class="card card-pad" style="margin-bottom: 1rem;">
+    <div class="panel-header">
+      <div>
+        <div class="h-eye">Metric</div>
+        <div class="h-sm" id="explore-metric-title">Total stolen value ($)</div>
+      </div>
+      <div class="chip-row" id="explore-view-chips">
+        <button class="chip active" data-view="value">Stolen value ($)</button>
+        <button class="chip" data-view="value_pc">$ / capita</button>
+        <button class="chip" data-view="rate">Incidents / 100k</button>
+        <button class="chip" data-view="surprise">Surprise — rate</button>
+        <button class="chip" data-view="value_surprise">Surprise — value</button>
+        <button class="chip" data-view="population">Population</button>
+        <button class="chip" data-view="percent_recovered">% Recovered</button>
+      </div>
+    </div>
+    <p id="explore-desc" style="color: var(--ink-soft); max-width: 72ch;"></p>
+  </div>
+
+  <div class="grid grid-explorer">
+    <section class="card card-pad">
+      <div class="panel-header">
+        <div class="h-eye">Choropleth</div>
+        <div class="chip-row">
+          <button class="chip chip-secondary" id="btn-labels">Show state labels</button>
+          <button class="chip chip-secondary" id="btn-annots">Annotate outliers</button>
+        </div>
+      </div>
+      <div class="svg-wrap">
+        <svg id="map-svg" viewBox="0 0 960 560" class="map-svg" role="img" aria-label="Interactive US choropleth"></svg>
+      </div>
+      <div class="legend-row" id="map-legend"></div>
+    </section>
+
+    <aside style="display: grid; gap: 1rem;">
+      <div class="card card-pad">
+        <div class="panel-header">
+          <div class="h-eye">Ranked bar chart</div>
+          <span class="metric-pill" id="bar-metric-pill">—</span>
+        </div>
+        <div class="svg-wrap"><svg id="bar-svg" viewBox="0 0 360 720" role="img" aria-label="Ranked bar chart"></svg></div>
+      </div>
+      <div class="card card-pad">
+        <div class="panel-header"><div class="h-eye">Distribution</div></div>
+        <div class="svg-wrap"><svg id="hist-svg" viewBox="0 0 360 150" role="img" aria-label="Histogram"></svg></div>
+      </div>
+      <div class="card card-pad">
+        <div class="panel-header">
+          <div class="h-eye">Selected state</div>
+          <span id="detail-abbr" class="metric-pill">—</span>
+        </div>
+        <div id="detail-block" style="font-size: 0.88rem; color: var(--ink-soft);">Hover any state to inspect its full profile.</div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<!-- ===================== FUNNEL TAB ===================== -->
+<main id="tab-funnel" class="tab-content wrap">
+  <div class="card card-pad">
+    <div class="panel-header">
+      <div>
+        <div class="h-eye">Bayesian surprise · de Moivre funnel</div>
+        <div class="h-sm">Rate vs. population — outliers, in context.</div>
+      </div>
+      <div class="chip-row">
+        <button class="chip chip-secondary active" id="btn-funnel-rate" data-fvar="rate">Incident rate</button>
+        <button class="chip chip-secondary" id="btn-funnel-value" data-fvar="value">Value / capita</button>
+      </div>
+    </div>
+    <p style="color: var(--ink-soft); max-width: 78ch;">
+      Each dot is a state. Its horizontal position is <em>population</em> (log scale); its vertical
+      position is the <em>per-capita rate</em>. Shaded bands are the 95% and 99% confidence
+      envelopes under a de Moivre sampling model centered on the national rate. States outside
+      the 99% band are where the surprise map earns its keep.
+    </p>
+    <div class="svg-wrap" style="margin-top: 0.6rem;">
+      <svg id="funnel-svg" viewBox="0 0 960 520" role="img" aria-label="de Moivre funnel plot"></svg>
+    </div>
+  </div>
+</main>
+
+<!-- ===================== COMPARE TAB ===================== -->
+<main id="tab-compare" class="tab-content wrap">
+  <div class="card card-pad">
+    <div class="h-eye">Side-by-side comparison</div>
+    <div class="h-sm">Pick two encodings. Hover either — both highlight.</div>
+    <div class="grid grid-compare" style="margin-top: 0.8rem;">
+      <div>
+        <div class="chip-row" id="cmp-left-chips"></div>
+        <div class="svg-wrap"><svg id="cmp-left-svg" viewBox="0 0 960 560" class="map-svg"></svg></div>
+        <div class="legend-row" id="cmp-left-legend"></div>
+      </div>
+      <div>
+        <div class="chip-row" id="cmp-right-chips"></div>
+        <div class="svg-wrap"><svg id="cmp-right-svg" viewBox="0 0 960 560" class="map-svg"></svg></div>
+        <div class="legend-row" id="cmp-right-legend"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ===================== TABLE TAB ===================== -->
+<main id="tab-table" class="tab-content wrap">
+  <div class="card card-pad">
+    <div class="panel-header">
+      <div>
+        <div class="h-eye">Per-state data</div>
+        <div class="h-sm">47 reporting states · sort, search, export</div>
+      </div>
+      <div class="chip-row" style="gap: 0.45rem;">
+        <input id="tbl-search" class="search-input" style="max-width: 260px;" placeholder="Search state or abbreviation…">
+        <button class="chip chip-secondary" id="btn-csv">⇩ Export CSV</button>
+      </div>
+    </div>
+    <div class="scroll-y scroll-shadow" style="margin-top: 0.7rem;">
+      <table class="data-table" id="tbl">
+        <thead><tr id="tbl-head"></tr></thead>
+        <tbody id="tbl-body"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- ===================== METHODOLOGY TAB ===================== -->
+<main id="tab-method" class="tab-content wrap">
+  <div class="card card-pad" style="margin-bottom: 1rem;">
+    <div class="h-eye">Methodology</div>
+    <div class="h-sm">de Moivre funnel · signed square-root transform</div>
+    <p style="color: var(--ink-soft); margin-top: 0.5rem;">
+      We compute each state&rsquo;s surprise as a z-score of its per-capita cargo-theft
+      incident rate under a de Moivre sampling model centered on the national rate,
+      following Correll &amp; Heer (2017) and Ndlovu et&nbsp;al. (2023):
+    </p>
+    <div class="math">
+      p̂ = (Σ incidents) / (Σ population)<br>
+      Z<sub>i</sub> = (rate<sub>i</sub> − p̂) / √( p̂ · (1 − p̂) / pop<sub>i</sub> )<br>
+      surprise<sub>i</sub> = 2 · ( 1 − Φ(|Z<sub>i</sub>|) )
+    </div>
+    <p style="color: var(--ink-soft); margin-top: 0.8rem;">
+      Because cargo-theft incidents are rare (p̂ ≈ 7.7 per 100k), classical p-values
+      saturate at zero for most states. We therefore encode the
+      <strong>signed square-root of z</strong> — sign(z)·√|z| — on the map, so that both the
+      <em>magnitude</em> and <em>direction</em> of the deviation are legible.
+      Value-per-capita surprise is computed analogously as a Gaussian z-score across states.
+    </p>
+  </div>
+
+  <div class="card card-pad">
+    <div class="h-eye">Data &amp; references</div>
+    <ul style="margin-top: 0.5rem; color: var(--ink-soft); line-height: 1.7;">
+      <li>FBI Crime Data Explorer (CDE), <em>Cargo Theft Tables — 2024</em>. <a href="https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/docApi" target="_blank" rel="noopener">cde.ucr.cjis.gov</a></li>
+      <li>U.S. Census Bureau, <em>Annual Estimates of the Resident Population for Incorporated Places, Vintage 2024</em> (SUB-IP-EST2024-POP).</li>
+      <li>Ndlovu, A., Shrestha, H., &amp; Harrison, L.T. (2023). <em>Taken By Surprise? Evaluating How Bayesian Surprise &amp; Suppression Influences People&rsquo;s Takeaways in Map Visualizations.</em> arXiv:2307.15138.</li>
+      <li>Correll, M., &amp; Heer, J. (2017). <em>Surprise! Bayesian Weighting for De-Biasing Thematic Maps.</em> IEEE TVCG 23(1), 651–660.</li>
+      <li>Correll, M., Moritz, D., &amp; Heer, J. (2018). <em>Value-Suppressing Uncertainty Palettes.</em> ACM CHI 2018.</li>
+    </ul>
+  </div>
+</main>
+
+<footer class="footer">
+  Built with D3 v7, Bulma, and a lot of coffee. Source ·
+  <a href="https://github.com/MacCode7110/grad-final" target="_blank" rel="noopener">github.com/MacCode7110/grad-final</a>.
+  © 2026 McAlarney · Hu · Farquharson · Vaddeboina.
+</footer>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://unpkg.com/topojson-client@3"></script>
+<script>
+/* ============================================================================
+ *  Taken by Surprise — advanced interactive dashboard
+ *  FBI 2024 Cargo Theft + U.S. Census Bureau Vintage 2024 populations
+ * ==========================================================================*/
+
+const VIEWS = {
+  value:            { field: "stolen_value_usd",            short: "Stolen value",        label: "Total stolen value ($)",            fmt: d => "$" + d3.format(",.0f")(d),    fmtC:d=>"$"+d3.format(".2s")(d).replace("G","B"), scheme: d3.interpolateOranges, kind: "sequential", desc: "The conventional choropleth. Kentucky's $150M dominates; most states are visually indistinguishable." },
+  value_pc:         { field: "stolen_value_per_capita_usd", short: "Value / capita",      label: "Stolen value per capita ($)",        fmt: d => "$" + d3.format(",.2f")(d),    fmtC:d=>"$"+d3.format(",.2f")(d),                scheme: d3.interpolateOranges, kind: "sequential", desc: "Normalizes by population. Kentucky is still an outlier; other states cluster near $0–$3." },
+  rate:             { field: "incidents_per_100k",          short: "Rate / 100k",         label: "Incidents per 100,000 residents",    fmt: d => d3.format(",.2f")(d),          fmtC:d=>d3.format(".1f")(d),                     scheme: d3.interpolatePurples, kind: "sequential", desc: "Rate choropleth. National baseline ≈ 7.7 / 100k. Maryland (76.9), Nevada (39.6), New Mexico (36.5) stand out." },
+  surprise:         { field: "surprise_display",            short: "Surprise (rate)",     label: "Surprise — incident rate",           fmt: d => d3.format("+.2f")(d),          fmtC:d=>d3.format("+.2f")(d),                    scheme: d3.interpolateRdBu,     kind: "diverging",  desc: "sign(z)·√|z| on the per-capita incident rate. Red = surprisingly high, blue = surprisingly low, white = near expected." },
+  value_surprise:   { field: "value_surprise",              short: "Surprise (value)",    label: "Surprise — value per capita",        fmt: d => d3.format("+.2f")(d),          fmtC:d=>d3.format("+.2f")(d),                    scheme: d3.interpolateRdBu,     kind: "diverging",  desc: "Same construction on stolen-value-per-capita. Kentucky is the singular positive outlier." },
+  population:       { field: "population_2024",             short: "Population",          label: "Population (2024, incorp. places)",  fmt: d => d3.format(",")(d),             fmtC:d=>d3.format(".2s")(d),                     scheme: d3.interpolateBlues,    kind: "sequential", desc: "Companion map: incorporated-place population aggregated from the Census SUB-IP-EST2024-POP file." },
+  percent_recovered:{ field: "percent_recovered",           short: "% Recovered",         label: "Percent of stolen value recovered",  fmt: d => d3.format(".1f")(d) + "%",     fmtC:d=>d3.format(".1f")(d)+"%",                 scheme: d3.interpolateGreens,   kind: "sequential", desc: "Recovery rate varies wildly: Tennessee 34.9% and Alabama 23.4% on one end, Kentucky 0.8% on the other." }
+};
+
+const NBINS = 9;
+const NUMERIC_FIELDS = ["agencies_reporting","incidents","stolen_value_usd","recovered_value_usd",
+  "percent_recovered","population_2024","national_rate_per_100k","national_value_per_capita_usd",
+  "incidents_per_100k","expected_incidents","stolen_value_per_capita_usd","z_score","surprise_p",
+  "surprise_score","surprise_display","z_value","value_surprise"];
+
+const TOPO_URL = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
+const DATA_URL = "data/cargo_theft_surprise_2024.csv";
+
+/* ---------- State ---------- */
+const state = {
+  records: [],
+  byFips: new Map(),
+  topo: null,
+  states: null,
+  path: null,
+  currentTab: "overview",
+  exploreView: "value",
+  overviewView: "value",
+  compareLeft: "value",
+  compareRight: "surprise",
+  funnelVar: "rate",
+  showLabels: false,
+  showAnnots: true,
+  selectedFips: null,
+  hoverFips: null,
+  tourIdx: 0,
+  tourTimer: null,
+  sortField: "stolen_value_usd",
+  sortDir: "desc",
+  tableSearch: ""
+};
+
+const tooltip = d3.select("#tooltip");
+
+/* ---------- Theme ---------- */
+const themeBtn = document.getElementById("theme-btn");
+function applyTheme(t) {
+  document.documentElement.dataset.theme = t;
+  localStorage.setItem("tbs-theme", t);
+  themeBtn.textContent = t === "dark" ? "🌞" : "🌓";
+  // Re-render color scales that depend on CSS variables are fine; d3 interpolators are theme-independent.
+}
+applyTheme(localStorage.getItem("tbs-theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+themeBtn.addEventListener("click", () => applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark"));
+
+/* ---------- Data load ---------- */
+Promise.all([
+  d3.json(TOPO_URL),
+  d3.csv(DATA_URL, d => {
+    NUMERIC_FIELDS.forEach(k => { if (d[k] !== undefined && d[k] !== "") d[k] = +d[k]; });
+    d.state_fips = String(d.state_fips).padStart(2, "0");
+    return d;
+  })
+]).then(([topo, data]) => {
+  state.topo = topo;
+  state.states = topojson.feature(topo, topo.objects.states).features;
+  state.records = data.filter(d => Number.isFinite(d.population_2024) && d.population_2024 > 0);
+  state.records.forEach(r => state.byFips.set(r.state_fips, r));
+
+  const proj = d3.geoAlbersUsa().scale(1200).translate([480, 270]);
+  state.path = d3.geoPath(proj);
+
+  renderKPIs();
+  renderQuickFindings();
+  initOverview();
+  initExplorer();
+  initFunnel();
+  initCompare();
+  initTable();
+  initNav();
+
+  // tour
+  document.getElementById("btn-tour").addEventListener("click", toggleTour);
+
+}).catch(err => {
+  console.error(err);
+  document.getElementById("tab-overview").innerHTML = `<div class="card card-pad"><h2>Failed to load data.</h2><p>${err.message}</p><p>Run a static server from the <code>project/</code> folder: <code>python3 -m http.server 8765</code>, then open <code>http://localhost:8765</code>.</p></div>`;
+});
+
+/* ============================================================================
+ *  Tabs / Nav
+ * ==========================================================================*/
+function initNav() {
+  d3.selectAll("#nav-tabs .nav-tab").on("click", function() {
+    const tab = this.dataset.tab;
+    d3.selectAll("#nav-tabs .nav-tab").classed("active", false);
+    d3.select(this).classed("active", true);
+    d3.selectAll(".tab-content").classed("active", false);
+    d3.select("#tab-" + tab).classed("active", true);
+    state.currentTab = tab;
+    // re-render charts that might have loaded before being visible (sizing)
+    if (tab === "funnel") drawFunnel();
+    if (tab === "compare") { drawCompare("left"); drawCompare("right"); }
+    if (tab === "explore") renderExplorer();
+  });
+}
+
+/* ============================================================================
+ *  KPI strip
+ * ==========================================================================*/
+function renderKPIs() {
+  const rows = state.records;
+  const totalIncidents = d3.sum(rows, d => d.incidents);
+  const totalValue = d3.sum(rows, d => d.stolen_value_usd);
+  const totalRecovered = d3.sum(rows, d => d.recovered_value_usd);
+  const totalPop = d3.sum(rows, d => d.population_2024);
+  const agencies = d3.sum(rows, d => d.agencies_reporting);
+  const natRate = (totalIncidents / totalPop) * 100000;
+  const items = [
+    { lbl: "Reporting agencies", num: d3.format(",")(agencies) },
+    { lbl: "Cargo-theft incidents", num: d3.format(",")(totalIncidents) },
+    { lbl: "Stolen value (2024)", num: "$" + d3.format(".3s")(totalValue).replace("G", "B"), sub: d3.format(",.0f")(totalValue) + " USD" },
+    { lbl: "Recovered", num: "$" + d3.format(".3s")(totalRecovered).replace("G", "B"), sub: d3.format(".1%")(totalRecovered / totalValue) + " overall" },
+    { lbl: "National rate / 100k", num: d3.format(".2f")(natRate) },
+    { lbl: "States reporting", num: rows.length }
+  ];
+  d3.select("#kpi-strip").selectAll(".kpi").data(items).join("div")
+    .attr("class", "kpi")
+    .html(d => `<div class="kpi-num">${d.num}</div><div class="kpi-lbl">${d.lbl}</div>${d.sub ? `<div class="kpi-sub">${d.sub}</div>` : ""}`);
+}
+
+function renderQuickFindings() {
+  const rows = state.records;
+  const topRate = d3.greatest(rows, d => d.incidents_per_100k);
+  const topSurp = d3.greatest(rows, d => d.surprise_display);
+  const topVal  = d3.greatest(rows, d => d.stolen_value_usd);
+  const topRec  = d3.greatest(rows, d => d.percent_recovered);
+  d3.select("#qf-rate").text(`${topRate.state_name} · ${d3.format(".1f")(topRate.incidents_per_100k)} / 100k`);
+  d3.select("#qf-surp").text(`${topSurp.state_name} · ${d3.format("+.2f")(topSurp.surprise_display)} σ√`);
+  d3.select("#qf-value").text(`${topVal.state_name} · $${d3.format(",.0f")(topVal.stolen_value_usd)}`);
+  d3.select("#qf-rec").text(`${topRec.state_name} · ${d3.format(".1f")(topRec.percent_recovered)}%`);
+}
+
+/* ============================================================================
+ *  Color / legend helpers
+ * ==========================================================================*/
+function buildColorScale(view, rows) {
+  const values = rows.map(r => +r[view.field]).filter(Number.isFinite);
+  if (view.kind === "diverging") {
+    const absMax = d3.max(values, v => Math.abs(v)) || 1;
+    const s = d3.scaleDiverging(t => view.scheme(1 - t)).domain([-absMax, 0, absMax]);
+    s.rawExtent = [-absMax, absMax];
+    s.kind = "diverging";
+    return s;
+  }
+  const [lo, hi] = d3.extent(values);
+  const q = d3.scaleQuantize().domain([lo, hi]).range(d3.range(NBINS).map(i => view.scheme(0.1 + 0.85 * i / (NBINS - 1))));
+  q.rawExtent = [lo, hi];
+  q.kind = "sequential";
+  return q;
+}
+
+function drawLegend(sel, view, scale) {
+  const container = d3.select(sel);
+  container.html("");
+  container.append("div").attr("class", "legend-label").text(view.label);
+  const cells = container.append("div").attr("class", "legend-cells");
+  if (view.kind === "diverging") {
+    const [lo, hi] = scale.rawExtent;
+    const stops = d3.range(NBINS).map(i => lo + (hi - lo) * i / (NBINS - 1));
+    cells.selectAll(".legend-cell").data(stops).join("div")
+      .attr("class", "legend-cell")
+      .style("background", d => scale(d))
+      .on("mouseover", (e, d) => highlightByRange(scale, d, d))
+      .on("mouseout", clearHighlight);
+    container.append("span").attr("class", "legend-minmax").text(view.fmt(lo));
+    container.append("span").style("color", "var(--muted)").html("&nbsp;→&nbsp;");
+    container.append("span").attr("class", "legend-minmax").text(view.fmt(hi));
+  } else {
+    const bins = scale.range();
+    const [lo, hi] = scale.rawExtent;
+    cells.selectAll(".legend-cell").data(bins).join("div")
+      .attr("class", "legend-cell")
+      .style("background", d => d)
+      .on("mouseover", function(ev, d) { highlightByColor(d); })
+      .on("mouseout", clearHighlight);
+    container.append("span").attr("class", "legend-minmax").text(view.fmt(lo));
+    container.append("span").style("color", "var(--muted)").html("&nbsp;→&nbsp;");
+    container.append("span").attr("class", "legend-minmax").text(view.fmt(hi));
+  }
+}
+
+function highlightByColor(hex) {
+  d3.selectAll(".state-path")
+    .classed("dim", function() { return d3.select(this).attr("fill") !== hex; });
+}
+function highlightByRange(scale, from, to) {
+  d3.selectAll(".state-path")
+    .classed("dim", function(d) {
+      const r = state.byFips.get(d.id);
+      if (!r) return true;
+      const v = +r[d3.select(this).attr("data-field")];
+      return !(v >= from && v <= to);
+    });
+}
+function clearHighlight() { d3.selectAll(".state-path").classed("dim", false); }
+
+/* ============================================================================
+ *  Shared: draw a choropleth on a given <svg>
+ * ==========================================================================*/
+function drawChoropleth({svgSel, viewKey, showLabels, showAnnots, onHover}) {
+  const view = VIEWS[viewKey];
+  const scale = buildColorScale(view, state.records);
+  const svg = d3.select(svgSel);
+  svg.selectAll("g.layer").remove();
+  const g = svg.append("g").attr("class", "layer");
+
+  // states
+  g.append("g").selectAll("path.state-path")
+    .data(state.states, d => d.id).join("path")
+    .attr("class", "state-path")
+    .attr("d", state.path)
+    .attr("data-fips", d => d.id)
+    .attr("data-field", view.field)
+    .attr("fill", d => {
+      const r = state.byFips.get(d.id);
+      const v = r ? +r[view.field] : NaN;
+      return Number.isFinite(v) ? scale(v) : "color-mix(in srgb, var(--rule) 70%, transparent)";
+    })
+    .on("mousemove", function(ev, d) {
+      const r = state.byFips.get(d.id);
+      d3.selectAll(svgSel + " path.state-path").classed("selected", false);
+      d3.select(this).classed("selected", true);
+      if (r) showTooltip(ev, r);
+      if (onHover) onHover(r);
+    })
+    .on("mouseleave", function() {
+      d3.select(this).classed("selected", false);
+      hideTooltip();
+      if (onHover) onHover(null);
+    })
+    .on("click", function(ev, d) {
+      state.selectedFips = (state.selectedFips === d.id) ? null : d.id;
+      updateSelection();
+    });
+
+  // labels
+  if (showLabels) {
+    g.append("g").selectAll("text.state-label")
+      .data(state.states).join("text")
+      .attr("class", "state-label")
+      .attr("x", d => state.path.centroid(d)[0])
+      .attr("y", d => state.path.centroid(d)[1])
+      .text(d => (state.byFips.get(d.id) || {}).state_abbr || "");
+  }
+
+  // annotations
+  if (showAnnots) drawAnnotations(g, viewKey);
+
+  return { scale, view };
+}
+
+function drawAnnotations(g, viewKey) {
+  const view = VIEWS[viewKey];
+  const rows = state.records.filter(r => Number.isFinite(+r[view.field]));
+  const sorted = [...rows].sort((a, b) => d3.descending(Math.abs(+a[view.field] - d3.mean(rows, r => +r[view.field])), Math.abs(+b[view.field] - d3.mean(rows, r => +r[view.field]))));
+  const picks = sorted.slice(0, 3);
+  const annotG = g.append("g").attr("class", "annotations").style("pointer-events", "none");
+  picks.forEach(r => {
+    const feat = state.states.find(s => s.id === r.state_fips);
+    if (!feat) return;
+    const [cx, cy] = state.path.centroid(feat);
+    if (!Number.isFinite(cx)) return;
+    const dx = cx < 480 ? -34 : 34;
+    const dy = -18;
+    annotG.append("path")
+      .attr("class", "annot-line")
+      .attr("d", `M${cx},${cy} L${cx + dx},${cy + dy}`);
+    const txt = `${r.state_abbr} · ${view.fmtC(+r[view.field])}`;
+    const x = cx + dx + (dx < 0 ? -2 : 2);
+    const y = cy + dy - 2;
+    annotG.append("text").attr("class", "annot-halo").attr("x", x).attr("y", y).attr("text-anchor", dx < 0 ? "end" : "start").text(txt);
+    annotG.append("text").attr("class", "annot-text").attr("x", x).attr("y", y).attr("text-anchor", dx < 0 ? "end" : "start").text(txt);
+  });
+}
+
+/* ============================================================================
+ *  Tooltip
+ * ==========================================================================*/
+function showTooltip(event, r) {
+  if (!r) return hideTooltip();
+  const surpCol = r.surprise_display > 0 ? "var(--bad)" : "var(--good)";
+  const natRate = r.national_rate_per_100k || 7.7;
+  const rateFrac = Math.min(1, r.incidents_per_100k / 80);
+  const html = `
+    <div class="t-name">${r.state_name} <span class="t-sub">· ${r.state_abbr}</span></div>
+    <div class="t-row"><span class="k">Population</span><span class="v">${d3.format(",")(r.population_2024)}</span></div>
+    <div class="t-row"><span class="k">Incidents</span><span class="v">${d3.format(",")(r.incidents)}</span></div>
+    <div class="t-row emph"><span class="k">Rate / 100k</span><span class="v">${d3.format(",.2f")(r.incidents_per_100k)}</span></div>
+    <div class="t-bar"><div style="width:${(rateFrac*100).toFixed(1)}%"></div></div>
+    <div class="t-row" style="margin-top:0.35rem"><span class="k">Stolen value</span><span class="v">$${d3.format(",.0f")(r.stolen_value_usd)}</span></div>
+    <div class="t-row"><span class="k">$ / capita</span><span class="v">$${d3.format(",.2f")(r.stolen_value_per_capita_usd)}</span></div>
+    <div class="t-row"><span class="k">% Recovered</span><span class="v">${d3.format(".1f")(r.percent_recovered)}%</span></div>
+    <div class="t-row" style="margin-top:0.35rem"><span class="k">z (rate)</span><span class="v" style="color:${surpCol}">${d3.format("+.2f")(r.z_score)}</span></div>
+    <div class="t-row"><span class="k">Surprise (rate)</span><span class="v" style="color:${surpCol}">${d3.format("+.2f")(r.surprise_display)}</span></div>
+  `;
+  tooltip.html(html).style("opacity", 1).attr("aria-hidden", "false");
+  moveTooltip(event);
+}
+function moveTooltip(event) {
+  tooltip.style("left", event.clientX + "px").style("top", (event.clientY - 14) + "px");
+}
+function hideTooltip() { tooltip.style("opacity", 0).attr("aria-hidden", "true"); }
+
+/* ============================================================================
+ *  Selection across views
+ * ==========================================================================*/
+function updateSelection() {
+  d3.selectAll(".state-path")
+    .classed("selected", function(d) { return d.id === state.selectedFips; });
+  d3.selectAll("#tbl-body tr").classed("selected", function() { return this.dataset.fips === state.selectedFips; });
+  if (state.selectedFips) {
+    const r = state.byFips.get(state.selectedFips);
+    if (r) renderDetail(r);
+  } else {
+    d3.select("#detail-block").html("Hover any state to inspect its full profile.");
+    d3.select("#detail-abbr").text("—");
+  }
+}
+
+/* ============================================================================
+ *  Overview
+ * ==========================================================================*/
+function initOverview() {
+  renderOverview();
+  d3.selectAll("#overview-view-chips .chip").on("click", function() {
+    state.overviewView = this.dataset.view;
+    d3.selectAll("#overview-view-chips .chip").classed("active", false);
+    d3.select(this).classed("active", true);
+    renderOverview();
+  });
+}
+function renderOverview() {
+  const {scale, view} = drawChoropleth({
+    svgSel: "#overview-map",
+    viewKey: state.overviewView,
+    showLabels: false,
+    showAnnots: true,
+    onHover: null
+  });
+  drawLegend("#overview-legend", view, scale);
+}
+
+/* ---------- Tour (auto-cycle views in Overview) ---------- */
+function toggleTour() {
+  if (state.tourTimer) {
+    clearInterval(state.tourTimer);
+    state.tourTimer = null;
+    d3.select("#btn-tour").text("▶ Play tour");
+    return;
+  }
+  const seq = ["value", "value_pc", "rate", "surprise"];
+  state.tourIdx = 0;
+  d3.select("#btn-tour").text("⏸ Pause tour");
+  const step = () => {
+    state.overviewView = seq[state.tourIdx % seq.length];
+    d3.selectAll("#overview-view-chips .chip")
+      .classed("active", function() { return this.dataset.view === state.overviewView; });
+    renderOverview();
+    state.tourIdx++;
+  };
+  step();
+  state.tourTimer = setInterval(step, 3200);
+}
+
+/* ============================================================================
+ *  Explorer — map + bar chart + histogram + detail
+ * ==========================================================================*/
+function initExplorer() {
+  d3.selectAll("#explore-view-chips .chip").on("click", function() {
+    state.exploreView = this.dataset.view;
+    d3.selectAll("#explore-view-chips .chip").classed("active", false);
+    d3.select(this).classed("active", true);
+    renderExplorer();
+  });
+  d3.select("#btn-labels").on("click", function() {
+    state.showLabels = !state.showLabels;
+    d3.select(this).classed("active", state.showLabels);
+    renderExplorer();
+  });
+  d3.select("#btn-annots").on("click", function() {
+    state.showAnnots = !state.showAnnots;
+    d3.select(this).classed("active", state.showAnnots);
+    renderExplorer();
+  }).classed("active", state.showAnnots);
+  renderExplorer();
+}
+function renderExplorer() {
+  const view = VIEWS[state.exploreView];
+  d3.select("#explore-metric-title").text(view.label);
+  d3.select("#explore-desc").text(view.desc);
+  d3.select("#bar-metric-pill").text(view.short);
+  const { scale } = drawChoropleth({
+    svgSel: "#map-svg",
+    viewKey: state.exploreView,
+    showLabels: state.showLabels,
+    showAnnots: state.showAnnots,
+    onHover: r => { if (r) renderDetail(r); }
+  });
+  drawLegend("#map-legend", view, scale);
+  drawBarChart(view, scale);
+  drawHistogram(view);
+  updateSelection();
+}
+
+function drawBarChart(view, scale) {
+  const svg = d3.select("#bar-svg");
+  const W = 360, barH = 14, margin = {top: 12, right: 16, bottom: 4, left: 96};
+  const rows = [...state.records].sort((a, b) => d3.descending(+a[view.field], +b[view.field]));
+  const H = margin.top + margin.bottom + rows.length * barH + 4;
+  svg.attr("viewBox", `0 0 ${W} ${H}`);
+  svg.selectAll("*").remove();
+  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+  const innerW = W - margin.left - margin.right;
+
+  let x;
+  if (view.kind === "diverging") {
+    const ext = d3.extent(rows, d => +d[view.field]);
+    const m = Math.max(Math.abs(ext[0]), Math.abs(ext[1]));
+    x = d3.scaleLinear().domain([-m, m]).range([0, innerW]);
+    g.append("line").attr("x1", x(0)).attr("x2", x(0)).attr("y1", -4).attr("y2", rows.length * barH).attr("stroke", "var(--rule)");
+  } else {
+    const ext = d3.extent(rows, d => +d[view.field]);
+    x = d3.scaleLinear().domain([0, ext[1]]).range([0, innerW]);
+  }
+
+  const rowG = g.selectAll("g.bar-row").data(rows, d => d.state_fips).join("g")
+    .attr("class", "bar-row")
+    .attr("transform", (d, i) => `translate(0,${i * barH})`)
+    .style("cursor", "pointer")
+    .on("mousemove", (ev, d) => showTooltip(ev, d))
+    .on("mouseleave", hideTooltip)
+    .on("click", (ev, d) => { state.selectedFips = (state.selectedFips === d.state_fips) ? null : d.state_fips; updateSelection(); });
+
+  rowG.append("rect")
+    .attr("class", d => {
+      const v = +d[view.field];
+      return "bar-cell" + (view.kind === "diverging" && v < 0 ? " negative" : "");
+    })
+    .attr("y", 2).attr("height", barH - 4)
+    .attr("x", d => {
+      const v = +d[view.field];
+      return view.kind === "diverging" ? (v < 0 ? x(v) : x(0)) : 0;
+    })
+    .attr("width", d => {
+      const v = +d[view.field];
+      return view.kind === "diverging" ? Math.abs(x(v) - x(0)) : Math.max(0, x(v));
+    })
+    .attr("fill", d => scale(+d[view.field]));
+
+  rowG.append("text").attr("class", "bar-label").attr("x", -8).attr("y", barH / 2 + 3).attr("text-anchor", "end").text(d => d.state_abbr);
+  rowG.append("text").attr("class", "bar-value")
+    .attr("x", d => {
+      const v = +d[view.field];
+      if (view.kind === "diverging") return v < 0 ? x(0) + 4 : x(v) + 4;
+      return x(v) + 4;
+    })
+    .attr("y", barH / 2 + 3)
+    .text(d => view.fmtC(+d[view.field]));
+}
+
+function drawHistogram(view) {
+  const svg = d3.select("#hist-svg");
+  const W = 360, H = 150, margin = {top: 10, right: 8, bottom: 22, left: 8};
+  svg.selectAll("*").remove();
+  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+  const innerW = W - margin.left - margin.right;
+  const innerH = H - margin.top - margin.bottom;
+
+  const values = state.records.map(d => +d[view.field]).filter(Number.isFinite);
+  const ext = d3.extent(values);
+  const x = d3.scaleLinear().domain(ext).nice(18).range([0, innerW]);
+  const bins = d3.histogram().domain(x.domain()).thresholds(18)(values);
+  const y = d3.scaleLinear().domain([0, d3.max(bins, b => b.length)]).range([innerH, 0]);
+  const scale = buildColorScale(view, state.records);
+
+  g.selectAll("rect").data(bins).join("rect")
+    .attr("x", b => x(b.x0) + 1)
+    .attr("y", b => y(b.length))
+    .attr("width", b => Math.max(0, x(b.x1) - x(b.x0) - 1))
+    .attr("height", b => innerH - y(b.length))
+    .attr("fill", b => scale((b.x0 + b.x1) / 2))
+    .attr("opacity", 0.9);
+
+  g.append("g").attr("class", "axis").attr("transform", `translate(0,${innerH})`)
+    .call(d3.axisBottom(x).ticks(5).tickFormat(view.fmtC));
+}
+
+function renderDetail(r) {
+  if (!r) return;
+  d3.select("#detail-abbr").text(r.state_abbr);
+  const surpCol = r.surprise_display > 0 ? "var(--bad)" : "var(--good)";
+  const html = `
+    <div class="h-sm" style="margin-bottom: 0.4rem;">${r.state_name}</div>
+    <div class="rank-row"><span class="name">Population</span><span class="val">${d3.format(",")(r.population_2024)}</span></div>
+    <div class="rank-row"><span class="name">Agencies reporting</span><span class="val">${d3.format(",")(r.agencies_reporting)}</span></div>
+    <div class="rank-row"><span class="name">Incidents</span><span class="val">${d3.format(",")(r.incidents)}</span></div>
+    <div class="rank-row"><span class="name">Rate / 100k</span><span class="val">${d3.format(".2f")(r.incidents_per_100k)}</span></div>
+    <div class="rank-row"><span class="name">Stolen value</span><span class="val">$${d3.format(",.0f")(r.stolen_value_usd)}</span></div>
+    <div class="rank-row"><span class="name">$ / capita</span><span class="val">$${d3.format(",.2f")(r.stolen_value_per_capita_usd)}</span></div>
+    <div class="rank-row"><span class="name">Recovered</span><span class="val">${d3.format(".1f")(r.percent_recovered)}%</span></div>
+    <div class="rank-row"><span class="name">z-score (rate)</span><span class="val" style="color:${surpCol}">${d3.format("+.2f")(r.z_score)}</span></div>
+    <div class="rank-row"><span class="name">Surprise (rate)</span><span class="val" style="color:${surpCol}">${d3.format("+.2f")(r.surprise_display)}</span></div>
+    <div class="rank-row"><span class="name">Surprise (value)</span><span class="val">${d3.format("+.2f")(r.value_surprise)}</span></div>
+  `;
+  d3.select("#detail-block").html(html);
+}
+
+/* ============================================================================
+ *  Funnel plot (de Moivre)
+ * ==========================================================================*/
+function initFunnel() {
+  d3.selectAll("#tab-funnel .chip").on("click", function() {
+    state.funnelVar = this.dataset.fvar;
+    d3.selectAll("#tab-funnel .chip").classed("active", false);
+    d3.select(this).classed("active", true);
+    drawFunnel();
+  });
+  drawFunnel();
+}
+
+function drawFunnel() {
+  const svg = d3.select("#funnel-svg");
+  const W = 960, H = 520;
+  const margin = {top: 30, right: 40, bottom: 50, left: 70};
+  svg.selectAll("*").remove();
+  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+  const innerW = W - margin.left - margin.right;
+  const innerH = H - margin.top - margin.bottom;
+
+  const rows = state.records;
+  const isValue = state.funnelVar === "value";
+  const yField = isValue ? "stolen_value_per_capita_usd" : "incidents_per_100k";
+  const centerY = isValue ? d3.sum(rows, d => d.stolen_value_usd) / d3.sum(rows, d => d.population_2024)
+                          : d3.sum(rows, d => d.incidents) / d3.sum(rows, d => d.population_2024) * 100000;
+
+  const x = d3.scaleLog().domain(d3.extent(rows, d => d.population_2024)).nice().range([0, innerW]);
+  const yExt = d3.extent(rows, d => d[yField]);
+  const yMax = Math.max(yExt[1], centerY * 2);
+  const yMin = Math.min(0, yExt[0]);
+  const y = d3.scaleLinear().domain([yMin, yMax]).nice().range([innerH, 0]);
+
+  // funnel bands — de Moivre: SE = sqrt( p*(1-p)/n ), scaled for rate-per-100k
+  const pops = d3.range(Math.log10(x.domain()[0]), Math.log10(x.domain()[1]) + 0.01, 0.02).map(p => Math.pow(10, p));
+  let p;
+  if (isValue) {
+    // approximate value/capita SE: rough σ scaled by 1/√pop using observed σ
+    const meanV = d3.mean(rows, d => d.stolen_value_per_capita_usd);
+    const varV  = d3.variance(rows, d => d.stolen_value_per_capita_usd);
+    p = { mean: meanV, se: n => Math.sqrt(varV) / Math.sqrt(Math.max(1, n / 1e5)) };
+  } else {
+    const pHat = centerY / 100000;
+    p = { mean: centerY, se: n => 100000 * Math.sqrt(pHat * (1 - pHat) / n) };
+  }
+
+  const band = (k) => pops.map(n => ({ n, lo: p.mean - k * p.se(n), hi: p.mean + k * p.se(n) }));
+
+  const area = d3.area().x(d => x(d.n)).y0(d => y(Math.max(yMin, d.lo))).y1(d => y(Math.min(yMax, d.hi))).curve(d3.curveCatmullRom);
+  g.append("path").datum(band(2.576)).attr("class", "funnel-band-99").attr("d", area);
+  g.append("path").datum(band(1.960)).attr("class", "funnel-band-95").attr("d", area);
+
+  g.append("line").attr("class", "funnel-center").attr("x1", 0).attr("x2", innerW).attr("y1", y(p.mean)).attr("y2", y(p.mean));
+
+  // axes
+  g.append("g").attr("class", "axis").attr("transform", `translate(0,${innerH})`)
+    .call(d3.axisBottom(x).ticks(8, ",.0s"));
+  g.append("g").attr("class", "axis")
+    .call(d3.axisLeft(y).ticks(6).tickFormat(v => isValue ? "$" + d3.format(",.2f")(v) : d3.format(",.0f")(v)));
+
+  g.append("text").attr("x", innerW / 2).attr("y", innerH + 36).attr("text-anchor", "middle").attr("fill", "var(--muted)").attr("font-size", 12).text("Population (log scale)");
+  g.append("text").attr("transform", `translate(-52,${innerH / 2}) rotate(-90)`).attr("text-anchor", "middle").attr("fill", "var(--muted)").attr("font-size", 12).text(isValue ? "Stolen value / capita ($)" : "Incidents per 100k residents");
+
+  // legend
+  const leg = g.append("g").attr("transform", `translate(${innerW - 180}, 4)`);
+  leg.append("rect").attr("width", 16).attr("height", 12).attr("class", "funnel-band-95");
+  leg.append("text").attr("x", 22).attr("y", 10).attr("font-size", 11).attr("fill", "var(--ink-soft)").text("95% band");
+  leg.append("rect").attr("y", 16).attr("width", 16).attr("height", 12).attr("class", "funnel-band-99");
+  leg.append("text").attr("x", 22).attr("y", 26).attr("font-size", 11).attr("fill", "var(--ink-soft)").text("99% band");
+
+  // dots
+  const scale = buildColorScale(VIEWS[isValue ? "value_surprise" : "surprise"], rows);
+
+  g.selectAll("circle.funnel-dot").data(rows).join("circle")
+    .attr("class", "funnel-dot")
+    .attr("cx", d => x(d.population_2024))
+    .attr("cy", d => y(d[yField]))
+    .attr("r", 6)
+    .attr("fill", d => scale(+d[isValue ? "value_surprise" : "surprise_display"]))
+    .on("mousemove", (ev, d) => showTooltip(ev, d))
+    .on("mouseleave", hideTooltip)
+    .on("click", (ev, d) => { state.selectedFips = d.state_fips; updateSelection(); });
+
+  // label the worst offenders
+  const labeled = [...rows].sort((a, b) => d3.descending(Math.abs(a[isValue ? "value_surprise" : "surprise_display"]), Math.abs(b[isValue ? "value_surprise" : "surprise_display"]))).slice(0, 7);
+  g.selectAll("text.flab").data(labeled).join("text")
+    .attr("class", "annot-text")
+    .attr("x", d => x(d.population_2024) + 8).attr("y", d => y(d[yField]) - 5)
+    .text(d => d.state_abbr);
+}
+
+/* ============================================================================
+ *  Compare
+ * ==========================================================================*/
+function initCompare() {
+  const chipHTML = side => Object.keys(VIEWS).map(k => `<button class="chip${(side==="left"? state.compareLeft : state.compareRight)===k ? " active" : ""}" data-view="${k}">${VIEWS[k].short}</button>`).join("");
+  d3.select("#cmp-left-chips").html(chipHTML("left"));
+  d3.select("#cmp-right-chips").html(chipHTML("right"));
+  d3.selectAll("#cmp-left-chips .chip").on("click", function() {
+    state.compareLeft = this.dataset.view;
+    d3.selectAll("#cmp-left-chips .chip").classed("active", false);
+    d3.select(this).classed("active", true);
+    drawCompare("left");
+  });
+  d3.selectAll("#cmp-right-chips .chip").on("click", function() {
+    state.compareRight = this.dataset.view;
+    d3.selectAll("#cmp-right-chips .chip").classed("active", false);
+    d3.select(this).classed("active", true);
+    drawCompare("right");
+  });
+  drawCompare("left"); drawCompare("right");
+}
+function drawCompare(side) {
+  const viewKey = side === "left" ? state.compareLeft : state.compareRight;
+  const { scale, view } = drawChoropleth({
+    svgSel: side === "left" ? "#cmp-left-svg" : "#cmp-right-svg",
+    viewKey, showLabels: false, showAnnots: false,
+    onHover: null
+  });
+  drawLegend(side === "left" ? "#cmp-left-legend" : "#cmp-right-legend", view, scale);
+}
+
+/* ============================================================================
+ *  Data Table
+ * ==========================================================================*/
+const TBL_COLS = [
+  { k: "state_name",                 t: "State" },
+  { k: "state_abbr",                 t: "Abbr" },
+  { k: "population_2024",            t: "Population",        fmt: v => d3.format(",")(v) },
+  { k: "incidents",                  t: "Incidents",         fmt: v => d3.format(",")(v) },
+  { k: "incidents_per_100k",         t: "Rate / 100k",       fmt: v => d3.format(",.2f")(v) },
+  { k: "stolen_value_usd",           t: "Stolen $",          fmt: v => "$" + d3.format(",.0f")(v) },
+  { k: "stolen_value_per_capita_usd",t: "$ / capita",        fmt: v => "$" + d3.format(",.2f")(v) },
+  { k: "percent_recovered",          t: "% Recovered",       fmt: v => d3.format(".1f")(v) + "%" },
+  { k: "z_score",                    t: "z (rate)",          fmt: v => d3.format("+.2f")(v) },
+  { k: "surprise_display",           t: "Surprise",          fmt: v => d3.format("+.2f")(v) }
+];
+
+function initTable() {
+  d3.select("#tbl-search").on("input", function() {
+    state.tableSearch = this.value.toLowerCase();
+    renderTable();
+  });
+  d3.select("#btn-csv").on("click", exportCSV);
+  renderTable();
+}
+function renderTable() {
+  const head = d3.select("#tbl-head");
+  head.selectAll("*").remove();
+  head.selectAll("th").data(TBL_COLS).join("th")
+    .text(c => c.t)
+    .append("span").attr("class", "sort-arrow")
+    .text(c => c.k === state.sortField ? (state.sortDir === "desc" ? "▼" : "▲") : "");
+  head.selectAll("th").on("click", function(ev, c) {
+    if (state.sortField === c.k) state.sortDir = state.sortDir === "desc" ? "asc" : "desc";
+    else { state.sortField = c.k; state.sortDir = typeof state.records[0][c.k] === "number" ? "desc" : "asc"; }
+    renderTable();
+  });
+
+  const q = state.tableSearch;
+  const rows = state.records
+    .filter(r => !q || r.state_name.toLowerCase().includes(q) || r.state_abbr.toLowerCase().includes(q))
+    .sort((a, b) => {
+      const va = a[state.sortField], vb = b[state.sortField];
+      if (typeof va === "number") return state.sortDir === "desc" ? vb - va : va - vb;
+      return state.sortDir === "desc" ? String(vb).localeCompare(String(va)) : String(va).localeCompare(String(vb));
+    });
+
+  const body = d3.select("#tbl-body");
+  body.selectAll("tr").remove();
+  body.selectAll("tr").data(rows, d => d.state_fips).join("tr")
+    .attr("data-fips", d => d.state_fips)
+    .classed("selected", d => d.state_fips === state.selectedFips)
+    .on("click", function(ev, d) { state.selectedFips = (state.selectedFips === d.state_fips) ? null : d.state_fips; updateSelection(); })
+    .selectAll("td").data(d => TBL_COLS.map(c => ({c, v: d[c.k]}))).join("td")
+    .html(({c, v}) => c.fmt ? c.fmt(v) : v);
+}
+
+function exportCSV() {
+  const rows = state.records;
+  const keys = TBL_COLS.map(c => c.k);
+  const header = TBL_COLS.map(c => c.t).join(",");
+  const body = rows.map(r => keys.map(k => {
+    const v = r[k];
+    if (typeof v === "string" && v.includes(",")) return `"${v}"`;
+    return v;
+  }).join(",")).join("\n");
+  const blob = new Blob([header + "\n" + body], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "cargo_theft_surprise_2024.csv"; a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
