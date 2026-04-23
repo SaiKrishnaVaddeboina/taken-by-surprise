@@ -231,7 +231,7 @@ the process book:
 3. **State-level granularity** (47 × 21). County or place-level data would
    make the Surprise effect more dramatic, but the FBI does not publish cargo
    theft at county level, so the join is not available. See §11.
-4. **Vanilla JS rather than React.** The prospectus committed to React + D3.
+4. **Vanilla JS rather than React.** The initial plan committed to React + D3.
    We dropped React because the deliverable is a single page with no routing;
    the React mental model is preserved (a single `state` object, explicit
    `render*()` calls) without the build tooling.
