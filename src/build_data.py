@@ -60,11 +60,11 @@ from typing import Dict, List, Tuple
 import openpyxl
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
+RAW = os.path.abspath(os.path.join(HERE, "..", "data", "raw"))
 DATA_OUT = os.path.abspath(os.path.join(HERE, "..", "data"))
 
-CARGO_FILE = os.path.join(ROOT, "cargo_theft_by_state_2024_data_modified.xlsx")
-POP_FILE = os.path.join(ROOT, "SUB-IP-EST2024-POP.xlsx")
+CARGO_FILE = os.path.join(RAW, "cargo_theft_by_state_2024_data_modified.xlsx")
+POP_FILE = os.path.join(RAW, "SUB-IP-EST2024-POP.xlsx")
 
 os.makedirs(DATA_OUT, exist_ok=True)
 
