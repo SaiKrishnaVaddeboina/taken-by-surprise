@@ -76,7 +76,7 @@ underlying dataset is used throughout; only the encoding changes.
 
 ### 4.1 Non-obvious UI features (per rubric)
 
-These are features a grader might miss on first pass, so I'm calling them out
+These are features a grader might miss on first pass, so we are calling them out
 explicitly:
 
 - **Shared selection.** Clicking a state on the map, a bar in the ranked
