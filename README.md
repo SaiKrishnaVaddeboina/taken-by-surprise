@@ -11,7 +11,7 @@ Spring 2026.
 | | |
 | --- | --- |
 | **🔗 Live site** | <https://saikrishnavaddeboina.github.io/taken-by-surprise/> |
-| **🎬 Screencast** | _to be recorded — see `docs/screencast_script.md` for narration_ |
+| **🎬 Screencast** | _ https://youtu.be/urbsYEYc9TI |
 | **📖 Process book** | [`docs/process_book.pdf`](docs/process_book.pdf) |
 | **📄 Prospectus** | [`docs/prospectus.pdf`](docs/prospectus.pdf) |
 | **👥 Team** | Matthew McAlarney · Hongchao Hu · Duncan Farquharson · Sai Krishna Vaddeboina |
