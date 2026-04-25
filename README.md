@@ -11,7 +11,7 @@ Spring 2026.
 | | |
 | --- | --- |
 | **🔗 Live site** | <https://saikrishnavaddeboina.github.io/taken-by-surprise/> |
-| **🎬 Screencast** | _to be recorded — see `docs/screencast_script.md` for narration_ |
+| **🎬 Screencast** | https://youtu.be/XdLmUCXJkno |
 | **📖 Process book** | [`docs/process_book.pdf`](docs/process_book.pdf) |
 | **📄 Prospectus** | [`docs/prospectus.pdf`](docs/prospectus.pdf) |
 | **👥 Team** | Matthew McAlarney · Hongchao Hu · Duncan Farquharson · Sai Krishna Vaddeboina |
@@ -76,7 +76,7 @@ underlying dataset is used throughout; only the encoding changes.
 
 ### 4.1 Non-obvious UI features (per rubric)
 
-These are features a grader might miss on first pass, so I'm calling them out
+These are features a grader might miss on first pass, so we are calling them out
 explicitly:
 
 - **Shared selection.** Clicking a state on the map, a bar in the ranked
@@ -264,17 +264,13 @@ the process book:
 
 ## 12. Team contributions
 
-- **Matthew McAlarney** — dataset selection (US Cargo Theft 2024), initial
-  DataWrapper prototype, implementation plan, Zoom coordination with
-  Prof. Harrison and Akim Ndlovu.
-- **Hongchao Hu** — visualization-design review, related-dataset sourcing
-  (Kaggle UK real-estate + county-level demographic data), accessibility
-  references (GeoVisAlly / CHI '26).
-- **Duncan Farquharson** — prospectus authoring, deliverables coordination,
-  weekly sync scheduling.
+- **Matthew McAlarney** — dataset selection (US Cargo Theft 2024, US Census Bureau Population Incorporated Places 2024), initial DataWrapper prototype, implementation plan, feedback coordination with Prof. Harrison and Akim Ndlovu, analysis report, screencast recording.
+- **Hongchao Hu** — initial DataWrapper prototype review, additional dataset exploration
+  (UK real-estate + county-level demographic data), accessibility references (GeoVisAlly / CHI '26), analysis report.
+- **Duncan Farquharson** — web application review, spearheaded analysis report
 - **Sai Krishna Vaddeboina** — interactive web dashboard (`index.html`),
   data pipeline (`src/build_data.py`), process book and prospectus PDF
-  builders, repository setup and GitHub Pages deployment.
+  builders, repository setup, GitHub Pages deployment.
 
 ## 13. References
 
