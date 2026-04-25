@@ -264,10 +264,10 @@ the process book:
 
 ## 12. Team contributions
 
-- **Matthew McAlarney** — dataset selection (US Cargo Theft 2024, US Census Bureau Population Incorporated Places 2024), initial DataWrapper prototype, implementation plan, feedback coordination with Professor Harrison and Akim Ndlovu, analysis report, screencast recording.
+- **Matthew McAlarney** — dataset selection (US Cargo Theft 2024, US Census Bureau Population Incorporated Places 2024), initial DataWrapper prototype, implementation plan, feedback coordination with Prof. Harrison and Akim Ndlovu, analysis report, screencast recording.
 - **Hongchao Hu** — initial DataWrapper prototype review, additional dataset exploration
   (UK real-estate + county-level demographic data), accessibility references (GeoVisAlly / CHI '26), analysis report.
-- **Duncan Farquharson** — dataset selection review, web application review, spearheaded analysis report
+- **Duncan Farquharson** — web application review, spearheaded analysis report
 - **Sai Krishna Vaddeboina** — interactive web dashboard (`index.html`),
   data pipeline (`src/build_data.py`), process book and prospectus PDF
   builders, repository setup, GitHub Pages deployment.
